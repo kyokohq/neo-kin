@@ -5,18 +5,12 @@ import { Sparkles, Heart } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
   return (
-    <div className="min-h-screen bg-indigo-50 flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Decorative Orbs */}
-      <motion.div 
-        animate={{ scale: [1, 1.2, 1], x: [0, 50, 0] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        className="absolute top-1/4 -left-20 w-64 h-64 bg-indigo-200/50 rounded-full blur-3xl pointer-events-none" 
-      />
-      <motion.div 
-        animate={{ scale: [1, 1.5, 1], y: [0, -40, 0] }}
-        transition={{ duration: 8, repeat: Infinity }}
-        className="absolute bottom-1/4 -right-20 w-80 h-80 bg-purple-200/50 rounded-full blur-3xl pointer-events-none" 
-      />
+    <div className="min-h-screen bg-app-bg flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative Ghost Typography */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none overflow-hidden">
+        <span className="text-[25vw] font-black leading-none text-white/[0.02] uppercase -rotate-12 translate-x-[-10vw]">Kinship</span>
+        <span className="text-[25vw] font-black leading-none text-app-accent/[0.02] uppercase -rotate-12 translate-x-[10vw]">Kinship</span>
+      </div>
 
       <div className="max-w-md w-full text-center relative z-10">
         <motion.div
@@ -24,26 +18,25 @@ export const LoginView: React.FC = () => {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="w-24 h-24 bg-indigo-600 rounded-[30px] shadow-2xl shadow-indigo-200 mx-auto flex items-center justify-center mb-8 rotate-3 hover:rotate-6 transition-transform">
-            <Sparkles className="text-white" size={48} />
+          <div className="mb-12">
+            <h1 className="text-[120px] font-black text-app-accent leading-[0.8] tracking-[-0.08em] uppercase">Kinship</h1>
+            <div className="text-[14px] font-black tracking-[0.4em] text-white uppercase mt-4">Legacy Simulator</div>
           </div>
-          <h1 className="text-5xl font-black text-slate-900 mb-4 tracking-tight">Kinworld</h1>
-          <p className="text-slate-500 text-lg mb-12">Building families, designing homes, and growing together in a world of surprises.</p>
 
           <button
             onClick={() => loginWithGoogle()}
-            className="group relative w-full bg-white text-slate-800 py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all border border-slate-100 flex items-center justify-center gap-3 active:translate-y-0"
+            className="group relative w-full bg-white text-black py-6 px-8 rounded-none font-black text-xl shadow-2xl hover:bg-app-accent transition-all flex items-center justify-center gap-4 active:scale-95 uppercase tracking-widest cursor-pointer"
           >
             <img 
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
               alt="Google" 
-              className="w-6 h-6"
+              className="w-6 h-6 invert"
             />
-            Continue with Google
+            Sign In
           </button>
 
-          <p className="mt-8 text-slate-400 text-sm flex items-center justify-center gap-1.5 font-medium">
-            Made with <Heart size={14} className="text-indigo-400 fill-current" /> for Kin-Friends
+          <p className="mt-12 text-app-muted text-[11px] font-black uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+            Building Dynasties Online
           </p>
         </motion.div>
       </div>

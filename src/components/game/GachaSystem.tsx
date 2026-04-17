@@ -56,15 +56,15 @@ export const GachaSystem: React.FC = () => {
 
   return (
     <>
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
+      <div className="fixed bottom-0 left-0 w-[280px] h-[80px] z-[60] flex items-center justify-center bg-app-panel border-t border-r border-white/10">
         <motion.button
-          whileHover={{ y: -5 }}
+          whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(true)}
-          className="bg-indigo-600 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-3 font-bold text-lg hover:bg-indigo-700 transition-colors"
+          className="w-full h-full bg-app-accent text-black flex items-center justify-center gap-3 font-black text-sm uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer"
         >
-          <Gift size={24} />
-          Surprise Box (KC 100)
+          <Gift size={20} />
+          Surprise Box
         </motion.button>
       </div>
 
@@ -74,15 +74,15 @@ export const GachaSystem: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-6"
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
           >
             <motion.div
               layoutId="gacha-box"
-              className="bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden relative"
+              className="bg-app-panel w-full max-w-md border border-white/10 shadow-2xl relative"
             >
               <button 
                 onClick={() => setIsOpen(false)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
+                className="absolute top-6 right-6 text-app-muted hover:text-white transition-colors"
                 disabled={isPulling}
               >
                 <X size={24} />
@@ -97,26 +97,26 @@ export const GachaSystem: React.FC = () => {
                         scale: [1, 1.1, 1]
                       } : {}}
                       transition={{ duration: 0.5, repeat: isPulling ? Infinity : 0 }}
-                      className="w-48 h-48 mx-auto bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 mb-8"
+                      className="w-48 h-48 mx-auto bg-zinc-800 flex items-center justify-center text-app-accent mb-8 border border-white/10"
                     >
                       <Package size={80} />
                     </motion.div>
                     
-                    <h3 className="text-2xl font-bold text-slate-800 mb-2">Surprise Delivery</h3>
-                    <p className="text-slate-500 mb-8 px-8">What will be inside the box today? Furniture, items, or maybe a new friend?</p>
+                    <h3 className="text-4xl font-black uppercase mb-2 tracking-tighter">Surprise Box</h3>
+                    <p className="text-app-muted text-sm uppercase font-bold tracking-widest mb-8 px-8 leading-relaxed">Cost: 100 Kin-Coins</p>
 
                     <button
                       onClick={performPull}
                       disabled={isPulling || (profile?.currency || 0) < 100}
                       className={cn(
-                        "w-full py-5 rounded-2xl font-bold text-xl shadow-lg transition-all",
-                        isPulling ? "bg-slate-100 text-slate-400" : "bg-indigo-600 text-white hover:bg-indigo-700"
+                        "w-full py-5 font-black text-xl uppercase tracking-widest transition-all cursor-pointer",
+                        isPulling ? "bg-zinc-800 text-zinc-600" : "bg-app-accent text-black hover:brightness-110"
                       )}
                     >
-                      {isPulling ? "Opening..." : "Open for KC 100"}
+                      {isPulling ? "Opening..." : "Purchase"}
                     </button>
                     {(profile?.currency || 0) < 100 && (
-                      <p className="mt-4 text-sm text-rose-500 font-medium">Not enough Kin-Coins!</p>
+                      <p className="mt-4 text-xs text-rose-500 font-black uppercase tracking-widest">Insufficient Funds</p>
                     )}
                   </>
                 ) : (
@@ -125,19 +125,19 @@ export const GachaSystem: React.FC = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     className="flex flex-col items-center"
                   >
-                    <div className={cn("w-48 h-48 rounded-full flex items-center justify-center text-white mb-6 shadow-2xl", result.color)}>
-                      <Sparkles size={64} className="absolute rotate-12" />
-                      <Package size={80} />
+                    <div className={cn("w-48 h-48 flex items-center justify-center text-white mb-6 border border-white/10 shadow-2xl overflow-hidden relative", result.color)}>
+                      <Sparkles size={64} className="absolute rotate-12 opacity-20" />
+                      <div className="z-10 bg-black/40 p-4 font-black text-6xl">{result.name[0]}</div>
                     </div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-1">{result.rarity}</span>
-                    <h2 className="text-3xl font-bold text-slate-800 mb-6">{result.name}</h2>
-                    <p className="text-slate-500 mb-8">This {result.type.toLowerCase()} has been added to your collection!</p>
+                    <span className="text-xs font-black uppercase tracking-[0.3em] text-app-accent mb-1">{result.rarity}</span>
+                    <h2 className="text-4xl font-black uppercase tracking-tighter mb-4">{result.name}</h2>
+                    <p className="text-app-muted text-xs uppercase font-bold tracking-widest mb-8">Asset Added to Inventory</p>
                     
                     <button
                       onClick={() => setResult(null)}
-                      className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-colors"
+                      className="w-full py-4 bg-white text-black font-black uppercase tracking-widest hover:bg-app-accent transition-colors cursor-pointer"
                     >
-                      Awesome!
+                      Confirm
                     </button>
                   </motion.div>
                 )}
