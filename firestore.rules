@@ -1,0 +1,118 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: uid, displayName, email, photoURL, currency, level, xp, createdAt
+    //
+    // Collection: families
+    // Fields: ownerId, name, surname, homeId, motto
+    //
+    // Collection: members
+    // Fields: familyId, name, type, age, appearance, traits, mood
+    //
+    // Collection: homes
+    // Fields: ownerId, furniture, wallpaper, flooring
+    //
+    // Collection: inventory
+    // Fields: ownerId, itemId, category, acquiredAt
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "piercesnyder39@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasOnly(['uid', 'displayName', 'email', 'photoURL', 'currency', 'level', 'xp', 'createdAt', 'role']) &&
+             data.displayName is string && data.displayName.size() > 0 && data.displayName.size() < 50 &&
+             data.currency is number && data.level is number && data.level >= 1;
+    }
+
+    function isValidFamily(data) {
+      return data.keys().hasOnly(['ownerId', 'name', 'surname', 'homeId', 'motto']) &&
+             data.ownerId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 30 &&
+             data.surname is string && data.surname.size() > 0 && data.surname.size() < 30;
+    }
+
+    function isValidMember(data) {
+      return data.keys().hasOnly(['familyId', 'name', 'type', 'age', 'appearance', 'traits', 'mood']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 30 &&
+             data.type in ['Human', 'Pet', 'Spirit'] &&
+             data.appearance is map &&
+             data.traits is list && data.traits.size() <= 5;
+    }
+
+    function isValidHome(data) {
+      return data.keys().hasOnly(['ownerId', 'furniture', 'wallpaper', 'flooring']) &&
+             data.ownerId == request.auth.uid &&
+             data.furniture is list && data.furniture.size() <= 100;
+    }
+
+    function isValidInventory(data) {
+      return data.keys().hasAll(['ownerId', 'itemId', 'category']) &&
+             data.ownerId == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{uid} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(uid) && isValidUser(request.resource.data) && request.resource.data.role == 'user';
+      allow update: if (isOwner(uid) && isValidUser(request.resource.data) && request.resource.data.role == resource.data.role) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /families/{familyId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidFamily(request.resource.data);
+      allow update: if (isOwner(resource.data.ownerId) && isValidFamily(request.resource.data)) || isAdmin();
+      allow delete: if isOwner(resource.data.ownerId) || isAdmin();
+
+      match /members/{memberId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && isValidMember(request.resource.data) && isOwner(get(/databases/$(database)/documents/families/$(familyId)).data.ownerId);
+        allow update: if (isOwner(get(/databases/$(database)/documents/families/$(familyId)).data.ownerId) && isValidMember(request.resource.data)) || isAdmin();
+        allow delete: if isOwner(get(/databases/$(database)/documents/families/$(familyId)).data.ownerId) || isAdmin();
+      }
+    }
+
+    match /homes/{homeId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidHome(request.resource.data);
+      allow update: if (isOwner(resource.data.ownerId) && isValidHome(request.resource.data)) || isAdmin();
+      allow delete: if isOwner(resource.data.ownerId) || isAdmin();
+    }
+
+    match /users/{uid}/inventory/{itemId} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && isValidInventory(request.resource.data);
+      allow update: if (isOwner(uid) && isValidInventory(request.resource.data)) || isAdmin();
+      allow delete: if isOwner(uid) || isAdmin();
+    }
+    
+    match /{path=**}/members/{memberId} {
+      allow read: if isAuthenticated();
+    }
+  }
+}

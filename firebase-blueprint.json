@@ -1,0 +1,113 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Information about a registered player.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "currency": { "type": "number", "description": "Player's Kin-Coins." },
+        "xp": { "type": "number" },
+        "level": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "currency", "level"]
+    },
+    "Family": {
+      "title": "Family",
+      "description": "A group of family members belonging to a user.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "name": { "type": "string" },
+        "surname": { "type": "string" },
+        "homeId": { "type": "string" },
+        "motto": { "type": "string" }
+      },
+      "required": ["ownerId", "name", "surname"]
+    },
+    "Member": {
+      "title": "Family Member",
+      "description": "An individual character in a family.",
+      "type": "object",
+      "properties": {
+        "familyId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["Human", "Pet", "Spirit"] },
+        "age": { "type": "number" },
+        "appearance": {
+          "type": "object",
+          "properties": {
+            "hairStyle": { "type": "string" },
+            "hairColor": { "type": "string" },
+            "skinTone": { "type": "string" },
+            "outfitId": { "type": "string" }
+          }
+        },
+        "traits": { "type": "array", "items": { "type": "string" } },
+        "mood": { "type": "number", "description": "0-100" }
+      },
+      "required": ["familyId", "name", "type", "appearance"]
+    },
+    "Home": {
+      "title": "Home",
+      "description": "Configuration of a player's living space.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "furniture": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "itemId": { "type": "string" },
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "rotation": { "type": "number" }
+            }
+          }
+        },
+        "wallpaper": { "type": "string" },
+        "flooring": { "type": "string" }
+      },
+      "required": ["ownerId", "furniture"]
+    },
+    "InventoryItem": {
+      "title": "Inventory Item",
+      "description": "An item owned by the user.",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string" },
+        "itemId": { "type": "string" },
+        "category": { "type": "string", "enum": ["Furniture", "Clothing", "Consumable"] },
+        "acquiredAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "itemId", "category"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": { "$ref": "User" },
+      "description": "The user's account and meta-data."
+    },
+    "/families/{familyId}": {
+      "schema": { "$ref": "Family" },
+      "description": "Family groups."
+    },
+    "/families/{familyId}/members/{memberId}": {
+      "schema": { "$ref": "Member" },
+      "description": "Characters within a family."
+    },
+    "/homes/{homeId}": {
+      "schema": { "$ref": "Home" },
+      "description": "House configurations."
+    },
+    "/users/{uid}/inventory/{itemId}": {
+      "schema": { "$ref": "InventoryItem" },
+      "description": "Items owned by the user."
+    }
+  }
+}
