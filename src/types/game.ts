@@ -13,10 +13,22 @@ export interface UserProfile {
 export type MemberType = 'Human' | 'Pet' | 'Spirit';
 
 export interface Appearance {
-  hairStyle: string;
-  hairColor: string;
   skinTone: string;
-  outfitId: string;
+  eyePreset: string;
+  layeredApparel: {
+    under: string;
+    over: string;
+    accessory: string;
+    shoes: string;
+  };
+}
+
+export interface Needs {
+  nourishment: number;
+  vitality: number;
+  sanitation: number;
+  connection: number;
+  enrichment: number;
 }
 
 export interface FamilyMember {
@@ -26,8 +38,22 @@ export interface FamilyMember {
   type: MemberType;
   age: number;
   appearance: Appearance;
+  needs: Needs;
   traits: string[];
   mood: number;
+}
+
+export interface InteractiveFurniture extends FurnitureItem {
+  userSlots: number;
+  interactionType: 'nourish' | 'rest' | 'clean' | 'socialize' | 'enrich' | 'none';
+}
+
+export interface CulDeSac {
+  id: string;
+  name: string;
+  members: string[]; // User UIDs
+  projectProgress: number;
+  motto: string;
 }
 
 export interface Family {

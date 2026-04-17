@@ -31,7 +31,7 @@
     },
     "Member": {
       "title": "Family Member",
-      "description": "An individual character in a family.",
+      "description": "An individual character in a family with dynamic needs.",
       "type": "object",
       "properties": {
         "familyId": { "type": "string" },
@@ -41,16 +41,33 @@
         "appearance": {
           "type": "object",
           "properties": {
-            "hairStyle": { "type": "string" },
-            "hairColor": { "type": "string" },
             "skinTone": { "type": "string" },
-            "outfitId": { "type": "string" }
+            "eyePreset": { "type": "string" },
+            "layeredApparel": {
+              "type": "object",
+              "properties": {
+                "under": { "type": "string" },
+                "over": { "type": "string" },
+                "accessory": { "type": "string" },
+                "shoes": { "type": "string" }
+              }
+            }
           }
         },
-        "traits": { "type": "array", "items": { "type": "string" } },
-        "mood": { "type": "number", "description": "0-100" }
+        "needs": {
+          "type": "object",
+          "properties": {
+            "nourishment": { "type": "number", "minimum": 0, "maximum": 100 },
+            "vitality": { "type": "number", "minimum": 0, "maximum": 100 },
+            "sanitation": { "type": "number", "minimum": 0, "maximum": 100 },
+            "connection": { "type": "number", "minimum": 0, "maximum": 100 },
+            "enrichment": { "type": "number", "minimum": 0, "maximum": 100 }
+          }
+        },
+        "mood": { "type": "number" },
+        "traits": { "type": "array", "items": { "type": "string" } }
       },
-      "required": ["familyId", "name", "type", "appearance"]
+      "required": ["familyId", "name", "type", "appearance", "needs"]
     },
     "Home": {
       "title": "Home",
@@ -86,6 +103,17 @@
         "acquiredAt": { "type": "string", "format": "date-time" }
       },
       "required": ["ownerId", "itemId", "category"]
+    },
+    "CulDeSac": {
+      "title": "Neighborhood Guild",
+      "description": "A group of players collaborating in a cul-de-sac.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "members": { "type": "array", "items": { "type": "string" } },
+        "projectProgress": { "type": "number" },
+        "motto": { "type": "string" }
+      }
     }
   },
   "firestore": {
@@ -108,6 +136,10 @@
     "/users/{uid}/inventory/{itemId}": {
       "schema": { "$ref": "InventoryItem" },
       "description": "Items owned by the user."
+    },
+    "/guilds/{guildId}": {
+      "schema": { "$ref": "CulDeSac" },
+      "description": "Neighborhood guilds."
     }
   }
 }

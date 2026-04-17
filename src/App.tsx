@@ -15,9 +15,14 @@ import { FamilyMember, FurnitureItem } from './types/game';
 import { Loader2 } from 'lucide-react';
 import { CharacterSprite } from './components/game/CharacterSprite';
 import { motion } from 'motion/react';
+import { NeighborhoodHub } from './components/game/NeighborhoodHub';
+import { SystemsManager } from './components/game/SystemsManager';
+import { cn } from './lib/utils';
 
 function GameContent() {
-  const { user, loading } = useGame();
+  const { user, profile, loading } = useGame();
+  const [view, setView] = useState<'home' | 'neighborhood'>('home');
+  const [isEditing, setIsEditing] = useState(false);
   const [members, setMembers] = useState<FamilyMember[]>([]);
   const [furniture, setFurniture] = useState<FurnitureItem[]>([]);
 
@@ -30,26 +35,20 @@ function GameContent() {
         name: 'Alex',
         type: 'Human',
         age: 24,
-        appearance: { hairStyle: 'short', hairColor: '#4B2C20', skinTone: '#FFDBAC', outfitId: '1' },
+        appearance: { 
+          skinTone: '#FFDBAC', 
+          eyePreset: 'default',
+          layeredApparel: { under: '#222', over: '#E5FF00', accessory: '#000', shoes: '#111' }
+        },
+        needs: { nourishment: 80, vitality: 90, sanitation: 100, connection: 70, enrichment: 65 },
         traits: ['Kind', 'Creative'],
         mood: 90
-      },
-      {
-        id: '2',
-        familyId: 'start',
-        name: 'Luna',
-        type: 'Pet',
-        age: 3,
-        appearance: { hairStyle: 'none', hairColor: '#E5E7EB', skinTone: '#F3F4F6', outfitId: '1' },
-        traits: ['Playful'],
-        mood: 75
       }
     ]);
 
     setFurniture([
       { id: 'f1', itemId: 'sofa', x: 20, y: 70, rotation: 0 },
       { id: 'f2', itemId: 'tv', x: 60, y: 65, rotation: -5 },
-      { id: 'f3', itemId: 'lamp', x: 15, y: 60, rotation: 0 },
     ]);
   }, [user]);
 
@@ -67,67 +66,96 @@ function GameContent() {
 
   return (
     <div className="h-screen w-screen grid grid-cols-[280px_1fr_280px] grid-rows-[120px_1fr_80px] overflow-hidden">
+      <SystemsManager />
       <HUD />
       
-      {/* Left Sidebar: Family */}
+      {/* Left Sidebar: Vitality & Disposition */}
       <aside className="bg-app-panel border-r border-white/10 p-6 flex flex-col gap-6 overflow-y-auto">
-        <span className="section-tag">Family Circle</span>
+        <span className="section-tag">Vitality & Disposition</span>
         <div className="flex flex-col gap-4">
           {members.map(member => (
-            <div key={member.id} className="panel-card flex gap-4 items-center">
-              <div className="w-12 h-12 bg-zinc-800 border-2 border-app-accent overflow-hidden">
-                {/* Scaled down sprite as avatar */}
-                <div className="scale-50 origin-top mt-4">
-                  <CharacterSprite appearance={member.appearance} type={member.type} />
-                </div>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold">{member.name}</h3>
-                <div className="text-[10px] text-app-muted uppercase font-bold tracking-widest mt-0.5">
-                  {member.type} / LV. {member.age}
-                </div>
-                <div className="w-full h-1 bg-black mt-2">
-                  <motion.div 
-                    className="h-full bg-app-accent" 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${member.mood}%` }}
-                  />
-                </div>
-              </div>
+            <div key={member.id} className="p-4 bg-black border border-white/5 relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-2 opacity-10">
+                  <span className="text-[32px] font-black uppercase text-white leading-none tracking-tighter">{member.name[0]}</span>
+               </div>
+               <h3 className="text-xl font-black uppercase tracking-tighter mb-4 relative z-10">{member.name}</h3>
+               <div className="space-y-3 relative z-10">
+                 <StatItem label="Nourishment" value={member.needs.nourishment} />
+                 <StatItem label="Vitality" value={member.needs.vitality} />
+                 <StatItem label="Connection" value={member.needs.connection} />
+                 <div className="pt-2 border-t border-white/5">
+                    <div className="flex justify-between items-end">
+                      <span className="text-[9px] font-black uppercase text-app-accent tracking-[0.2em]">Mood Monitor</span>
+                      <span className="text-xl font-black text-white">{Math.round(member.mood)}%</span>
+                    </div>
+                 </div>
+               </div>
             </div>
           ))}
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="relative bg-app-bg overflow-hidden flex flex-col items-center justify-center">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="text-[12vw] font-black text-white/[0.03] uppercase select-none">Living Area</span>
+      {/* Main Content Arena */}
+      <main className="relative bg-app-bg overflow-hidden flex flex-col">
+        {/* Navigation Tab Style */}
+        <div className="h-12 border-b border-white/10 flex items-center px-10 gap-8 z-50">
+           <button 
+             onClick={() => setView('home')}
+             className={cn(
+               "text-[9px] font-black uppercase tracking-widest h-full border-b-2 transition-all cursor-pointer",
+               view === 'home' ? "border-app-accent text-white" : "border-transparent text-white/30 hover:text-white"
+             )}
+           >
+             Habitat Instance
+           </button>
+           <button 
+             onClick={() => setView('neighborhood')}
+             className={cn(
+               "text-[9px] font-black uppercase tracking-widest h-full border-b-2 transition-all cursor-pointer",
+               view === 'neighborhood' ? "border-app-accent text-app-accent" : "border-transparent text-white/30 hover:text-white"
+             )}
+           >
+             Main Street Hub
+           </button>
         </div>
-        
-        <div className="w-full max-w-5xl px-12 z-10 flex flex-col h-full py-12">
-          <div className="flex-1">
-            <HomeView furniture={furniture} members={members} />
-          </div>
+
+        <div className="flex-1 relative">
+          {view === 'home' ? (
+            <div className="w-full h-full p-12">
+               <HomeView 
+                 furniture={furniture} 
+                 members={members} 
+                 isEditing={isEditing}
+                 onUpdateFurniture={(id, updates) => {
+                   setFurniture(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+                 }}
+               />
+            </div>
+          ) : (
+            <NeighborhoodHub />
+          )}
         </div>
       </main>
 
-      {/* Right Sidebar: Customization */}
+      {/* Right Sidebar: Designer Mode */}
       <aside className="bg-app-panel border-l border-white/10 p-6 overflow-y-auto">
         <span className="section-tag">Designer Mode</span>
+        <button 
+          onClick={() => setIsEditing(!isEditing)}
+          className={cn(
+            "w-full py-5 font-black text-[10px] uppercase tracking-[0.3em] transition-all mb-8 cursor-pointer",
+            isEditing ? "bg-app-accent text-black" : "bg-white/5 text-white hover:bg-white/10"
+          )}
+        >
+          {isEditing ? "Save Configuration" : "Enter Habitat Edit"}
+        </button>
+
         <nav className="flex flex-col gap-1">
           <button className="bold-btn active">Wardrobe</button>
           <button className="bold-btn">Interiors</button>
           <button className="bold-btn">Family</button>
           <button className="bold-btn">Storage</button>
         </nav>
-
-        <div className="mt-12">
-          <span className="section-tag">Quick Action</span>
-          <p className="text-[11px] text-app-muted leading-relaxed font-bold uppercase tracking-wider">
-            Press [Space] to enter Edit Mode. Items in your inventory will highlight.
-          </p>
-        </div>
       </aside>
 
       {/* Footer */}
@@ -143,6 +171,22 @@ function GameContent() {
     </div>
   );
 }
+
+const StatItem = ({ label, value }: { label: string; value: number }) => (
+  <div className="space-y-1">
+    <div className="flex justify-between items-end">
+      <span className="text-[8px] font-black uppercase text-app-muted tracking-widest">{label}</span>
+      <span className="text-[10px] font-black text-white">{Math.round(value)}%</span>
+    </div>
+    <div className="h-0.5 bg-white/5 w-full overflow-hidden">
+      <motion.div 
+        initial={{ width: 0 }}
+        animate={{ width: `${value}%` }}
+        className={cn("h-full", value < 30 ? "bg-rose-500" : "bg-white/40")}
+      />
+    </div>
+  </div>
+);
 
 export default function App() {
   return (

@@ -1,6 +1,6 @@
 {
-  "name": "Kinworld",
-  "description": "An online family-life simulator with deep customization for characters, homes, and family lineages. Features a gacha-style surprise system for new family members and furniture.",
+  "name": "Neo-Kin",
+  "description": "A 2D/2.5D web-based social sim combining the domestic depth of The Sims with the collectible, stylized aesthetics of Gacha Life and the community economy of NeoPets.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

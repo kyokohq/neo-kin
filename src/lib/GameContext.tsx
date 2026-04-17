@@ -4,11 +4,16 @@ import { doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { UserProfile, Family, Home } from '../types/game';
 
+import io from 'socket.io-client';
+
+type Socket = ReturnType<typeof io>;
+
 interface GameContextType {
   user: User | null;
   profile: UserProfile | null;
   family: Family | null;
   home: Home | null;
+  socket: Socket | null;
   loading: boolean;
   isAuthReady: boolean;
 }
@@ -20,8 +25,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [family, setFamily] = useState<Family | null>(null);
   const [home, setHome] = useState<Home | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAuthReady, setIsAuthReady] = useState(false);
+
+  useEffect(() => {
+    // Initialize socket
+    const s = io();
+    setSocket(s);
+    return () => { s.disconnect(); };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -29,6 +42,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthReady(true);
       
       if (u) {
+        if (socket) {
+          socket.emit('join_neighborhood', { 
+            uid: u.uid, 
+            name: u.displayName 
+          });
+        }
         // Find or create profile
         const userRef = doc(db, 'users', u.uid);
         const userSnap = await getDoc(userRef);
@@ -69,7 +88,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <GameContext.Provider value={{ user, profile, family, home, loading, isAuthReady }}>
+    <GameContext.Provider value={{ user, profile, family, home, socket, loading, isAuthReady }}>
       {children}
     </GameContext.Provider>
   );
